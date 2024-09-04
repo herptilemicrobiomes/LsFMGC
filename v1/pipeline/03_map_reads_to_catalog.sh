@@ -7,16 +7,25 @@ module load samtools
 
 INPUT=input_cds
 IDENTITY=95
-DB=db/LsFMGC_${IDENTITY}_cluster_rep.fasta # or whatever name you chose, and indicating perhaps what clustering method you used
+AACONSENSUS=db/LsFMGC_AA_${IDENTITY}_rep.fasta # or whatever name you chose, and indicating perhaps what clustering method you used
+CDSDB=db/LsFMGC_CDS_all.fasta.gz 
+DB=db/LsFMGC_AA_${IDENTITY}_rep.to_CDS.fasta
 SAMPFILE=wood_frog_samples.csv
 WORK=working
 OUT=results/mapping
 TEMP=$SCRATCH
 mkdir -p $OUT
+
+if [ ! -s $DB ]; then
+    grep '^>' $AACONSENSUS | sed 's/>//' > $SCRATCH/aa_names.txt
+    samtools faidx $CDSDB -r $SCRATCH/aa_names.txt > $DB
+fi
+
 # index the db for bwa mapping
 if [[ ! -f $DB.pac ]]; then
     bwa-mem2 index $DB
 fi
+
 
 CPU=2
 if [ $SLURM_CPUS_ON_NODE ]; then
