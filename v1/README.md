@@ -6,11 +6,13 @@ Algorithm
 ===
 1. Pre-process dataset of predictions [00_setup.sh](pipeline/00_setup.sh)
    
-This works by taking prodigal results from annotation of metagenome contigs (not MAGs) stored in `by_assembly` in the form of BIOSAMPLE.cds.fa.gz and BIOSAMPLE.aa.fa.gz. These sequences in each file are renamed so the BIOSAMPLE is prefixed changing the name from `>k141_103518_1` to `>UHM20.35743__k141_103518_1` for example. This is done by the script [00_setup.sh](pipeline/00_setup.sh) and uses the [wood_frog_samples.csv](wood_frog_samples.csv).
+This works by taking prodigal results from annotation of metagenome contigs (not MAGs) stored in `by_assembly` in the form of BIOSAMPLE.cds.fa.gz and BIOSAMPLE.aa.fa.gz.  These assemblies were generated via Assembling metagenomes with the [metashot](https://github.com/metashot/mag-illumina) pipeline (see `/bigdata/stajichlab/shared/projects/Herptile/Metagenome/Fecal` on HPCC and gcp `gs://herptile-basidiobolus-genomics/metagenome/all_scaffolds`)
+
+These sequences in each file are renamed so the BIOSAMPLE is prefixed changing the name from `>k141_103518_1` to `>UHM20.35743__k141_103518_1` for example. This is done by the script [00_setup.sh](pipeline/00_setup.sh) and uses the [wood_frog_samples.csv](wood_frog_samples.csv).
 
 2. Trim the reads [01_filter_trim.sh](pipeline/01_filter_trim.sh)
 
-The folder `input` has the raw reads the naming of BioSample to fastq files is based on the `sample.csv` or in this case [wood_frog_samples.csv](wood_frog_samples.csv) file.  These raw reads are trimmed and QCed with fastp and these are stored in a folder `work/BIOSAMPLE/BIOSAMPLE_R[12].fastq.gz`. This step is done by the script [01_filter_trim.sh](pipeline/01_filter_trim.sh).
+The folder `input` has the raw reads the naming of BioSample to fastq files is based on the `sample.csv` or in this case [wood_frog_samples.csv](wood_frog_samples.csv) file.  These raw reads are trimmed and QCed with fastp and these are stored in a folder `work/BIOSAMPLE/BIOSAMPLE_R[12].fastq.gz`. This step is done by the script [01_filter_trim.sh](pipeline/01_filter_trim.sh). Raw reads are on gcp as `gs://herptile-basidiobolus-genomics/illumina_metagenome/` and also `/bigdata/stajichlab/shared/projects/Herptile/Metagenome/Fecal/input` on HPCC.
 
 3. Build a non-redundant set of genes [02_build_gene_catalog.sh](pipeline/02_build_gene_catalog.sh)
 To build the non-redundant gene catalog from the ~20-30 M predicted proteins/genes we use [mmseqs2](https://github.com/soedinglab/MMseqs2) for clustering the proteins. One can also use cd-hit but I think memory requirements are smaller with mmseqs2, it would be worth comparing and profiling results.
@@ -53,7 +55,7 @@ We need to add metadata to the wood_frog_samples.csv file eventually (or another
 
 
 ===
-1. Assemble metagenomes (metashot pipeline)
+
 2. Predict genes in these metagenomes see [10_predict_by_assembl.sh](https://github.com/herptilemicrobiomes/MAG_Fecal/blob/main/pipeline/10_predict_by_assembl.sh). Note this set needs to have the genes renamed so that the UHM biosample prefixes these. -- [`pipeline/00_setup.sh`](pipeline/00_setup.sh)
 3. filter / trim reads (FastP - this was done in step 1 but we threw away these files so re-run) -- [`pipeline/01_filter_trim.sh`](pipeline/01_filter_trim.sh)
 4. Build non-redundant gene catalog across all samples with CD-HIT. This is LsFMGC set -- `pipeline/02_build_gene_catalog.sh`
