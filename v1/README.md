@@ -1,21 +1,33 @@
-
-Pre-processing Sample list
+Building Lithobates sylvaticus Fecal Metagenome Gene Catalog
 ===
-Problem: we have the large 90+ UHM fecal datasets, but only want woodfrog experiments.
-=======
+This will construct and quantify abundance of genes in a metagenome collection.
+
+Algorithm
+===
+1. Pre-process dataset of predictions [00_setup.sh](pipeline/00_setup.sh)
+   
 This works by taking prodigal results from annotation of metagenome contigs (not MAGs) stored in `by_assembly` in the form of BIOSAMPLE.cds.fa.gz and BIOSAMPLE.aa.fa.gz. These sequences in each file are renamed so the BIOSAMPLE is prefixed changing the name from `>k141_103518_1` to `>UHM20.35743__k141_103518_1` for example. This is done by the script [00_setup.sh](pipeline/00_setup.sh) and uses the [wood_frog_samples.csv](wood_frog_samples.csv).
+
+2. Trim the reads [01_filter_trim.sh](pipeline/01_filter_trim.sh)
 
 The folder `input` has the raw reads the naming of BioSample to fastq files is based on the `sample.csv` or in this case [wood_frog_samples.csv](wood_frog_samples.csv) file.  These raw reads are trimmed and QCed with fastp and these are stored in a folder `work/BIOSAMPLE/BIOSAMPLE_R[12].fastq.gz`. This step is done by the script [01_filter_trim.sh](pipeline/01_filter_trim.sh).
 
+3. Build a non-redundant set of genes [02_build_gene_catalog.sh](pipeline/02_build_gene_catalog.sh)
 To build the non-redundant gene catalog from the ~20-30 M predicted proteins/genes we use [mmseqs2](https://github.com/soedinglab/MMseqs2) for clustering the proteins. One can also use cd-hit but I think memory requirements are smaller with mmseqs2, it would be worth comparing and profiling results.
 
 First the proteins are collapsed into clusters based on 100%, 95%, 90%, and 50% identity and a representative chosen from each cluster. We can use these different clustering cutoffs to see how they impact our interpretation of the gene catalog.
 I am trying to cluster the CDS directly but it seems to take too long. But it will be helpful to contrast that. This clustering with mmseqs2 is run with code [02_build_gene_catalog.sh](pipeline/02_build_gene_catalog.sh).
 
+4. Map reads to the gene clusters to construct [03_map_reads_to_catalog.sh](pipeline/03_map_reads_to_catalog.sh)
+
+5. Quantify the read counts per-gene [04_quantify_gene_abundance.sh](pipeline/04_quantify_gene_abundance.sh)
+   
 Once the clusters are created we can get the corresponding CDS sequence for the named representative sequence back out to make a DNA database of the representative genes. The abundance of each gene in each metagenome sample is computed by using [BWA-MEM2](https://github.com/bwa-mem2/bwa-mem2) (wich should be faster) or just [BWA](https://github.com/lh3/bwa). We can also try bowtie. This produces BAM files which can then be processed with [featureCounts](https://subread.sourceforge.net/featureCounts.html) part of (subread)[https://subread.sourceforge.net/].
 
 
 Some things I had to do to make this work
+===
+Problem: we have the large 90+ UHM fecal datasets, but only want woodfrog experiments.
 ===
 **Metadata**
 (note we need to build the metadata complete CSV that has the info about each sample eg Basidiobolus status, date, Basidiobolus strain,etc).
@@ -39,7 +51,7 @@ Adding metadata
 ===
 We need to add metadata to the wood_frog_samples.csv file eventually (or another metadata.csv file if you prefer) to provide the data we will use to stratify plots later on.
 
-Algorithm
+
 ===
 1. Assemble metagenomes (metashot pipeline)
 2. Predict genes in these metagenomes see [10_predict_by_assembl.sh](https://github.com/herptilemicrobiomes/MAG_Fecal/blob/main/pipeline/10_predict_by_assembl.sh). Note this set needs to have the genes renamed so that the UHM biosample prefixes these. -- [`pipeline/00_setup.sh`](pipeline/00_setup.sh)
