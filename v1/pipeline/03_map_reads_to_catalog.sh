@@ -1,12 +1,12 @@
 #!/usr/bin/bash -l
-#SBATCH --mem 96gb -c 48 -N 1 -n 1 --out logs/map_reads_to_catalog_95.%a.log
+#SBATCH --mem 96gb -c 48 -N 1 -n 1 --out logs/map_reads_to_catalog_100.%a.log
 
 module load workspace/scratch
 module load bwa-mem2
 module load samtools
 
 INPUT=input_cds
-IDENTITY=95
+IDENTITY=100
 DB=db/LsFMGC_AA_${IDENTITY}_rep.to_CDS.fasta
 SAMPFILE=wood_frog_samples.csv
 WORK=working
