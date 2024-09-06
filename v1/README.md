@@ -36,6 +36,12 @@ Algorithm
 
 6. Plot these in R -- need a script written still (*TODO*)
 
+
+Data
+===
+Data are too large for github
+Archiving in gs://herptile-basidiobolus-genomics/LsFMGC/v1/
+
 Some things I had to do to make this work
 ===
 
