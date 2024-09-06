@@ -25,6 +25,7 @@ OUTDIR=results/function/cazy
 mkdir -p $OUTDIR
 
 IN=$TEMP/${PREFIX}.$N
-time dbcanlight search -i $INFILE -m cazyme -o $OUTDIR -t $CPU -b 100000
-time dbcanlight search -i $INFILE -m sub -o $OUTDIR -t $CPU -b 100000
-time dbcanlight search -i $INFILE -m diamond -o $OUTDIR -t $CPU -b 100000
+time dbcanlight search -i $INFILE -m cazyme -o $OUTDIR -t $CPU
+time dbcanlight search -i $INFILE -m sub -o $OUTDIR -t $CPU
+time dbcanlight search -i $INFILE -m diamond -o $OUTDIR -t $CPU 
+dbcanlight conclude $OUTDIR
